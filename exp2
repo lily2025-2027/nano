@@ -1,0 +1,61 @@
+% Parameters
+q = 1.6022e-19; % Elementary charge (C)
+C_dot = 1e-18; % Capacitance of the quantum dot (F)
+C_g = 0.1e-18; % Gate capacitance (F)
+R_s = 1e9; % Source resistance (Ohm)
+R_d = 1e9; % Drain resistance (Ohm)
+k_b = 1.3806e-23; % Boltzmann constant (J/K)
+T = 1; % Temperature (K)
+V_bias_start = -0.1; % Start voltage for bias sweep (V)
+V_bias_end = 0.1; % End voltage for bias sweep (V)
+V_bias_step = 0.001; % Step size for bias sweep (V)
+V_g_start = -0.05; % Start voltage for gate sweep (V)
+V_g_end = 0.05; % End voltage for gate sweep (V)
+V_g_step = 0.001; % Step size for gate sweep (V)
+
+% Bias voltage sweep
+V_bias = V_bias_start:V_bias_step:V_bias_end;
+num_V_bias = length(V_bias);
+
+% Gate voltage sweep
+V_g = V_g_start:V_g_step:V_g_end;
+num_V_g = length(V_g);
+
+% Initialize I_d (drain current)
+I_d = zeros(num_V_g, num_V_bias);
+
+% Simulation loop
+for i = 1:num_V_g
+    for j = 1:num_V_bias
+        V_ds = V_bias(j);
+        V_gs = V_g(i);
+
+% Calculate charging energy (simplified)
+        E_charge = (q^2) / (2 * (C_dot + 2*C_g));
+
+% Check for Coulomb blockade
+        if abs(V_ds) < q/(2*(C_dot+2*C_g)) && abs(V_gs) < q/(2*C_g)
+            I_d(i,j) = 0; % No current flow due to Coulomb blockade
+        else
+ % Simplified tunneling current calculation (not a rigorous model)
+ % This part needs more sophisticated modeling for accurate results
+            I_d(i,j) = (1/ (R_s + R_d)) * (V_ds - q/(2*(C_dot+2*C_g)) * sign(V_ds));
+
+        end
+    end
+end
+
+% Plotting
+figure;
+subplot(2,1,1);
+imagesc(V_bias, V_g, I_d);
+xlabel('Drain-Source Voltage (V)');
+ylabel('Gate Voltage (V)');
+title('Drain Current (I_d) vs. V_{ds} and V_g (Simplified Model)');
+colorbar;
+colormap jet;
+subplot(2,1,2);
+plot(V_bias, I_d(round(num_V_g/2),:)); % Plotting I-V for a specific V_g
+xlabel('Drain-Source Voltage (V)');
+ylabel('Drain Current (I_d)');
+title('I-V Characteristics at a Specific Gate Voltage');
