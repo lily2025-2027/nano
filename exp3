@@ -1,0 +1,30 @@
+% Parameters
+hbar = 1.0545718e-34; % Reduced Planck constant (J*s)
+m0 = 9.1093837015e-31; % Electron mass (kg)
+q = 1.602176634e-19; % Elementary charge (C)
+E = linspace(0, 10, 200) * q; % Electron energy (J) (0 to 10 eV)
+V0 = 5 * q; % Barrier height (J) (5 eV)
+a = 1e-9; % Barrier width (m) (1 nm)
+
+% Pre-allocate space for transmission probability
+T = zeros(size(E));
+% Loop through different energies
+for i = 1:length(E)
+  if E(i) < V0
+    k1 = sqrt(2*m0*E(i)) / hbar;
+    k2 = sqrt(2*m0*(V0-E(i))) / hbar;
+    T(i) = 1 / (1 + (V0^2 * sinh(k2*a).^2) / (4*E(i)*(V0-E(i))));
+  else
+    T(i) = 1; % No barrier if energy is higher
+  end
+end
+
+% Convert energy to electron volts for plotting
+E_eV = E / q;
+% Plotting
+figure;
+plot(E_eV, T);
+xlabel('Electron Energy (eV)');
+ylabel('Transmission Probability (T)');
+title('Electron Tunneling Through a Potential Barrier');
+grid on;
